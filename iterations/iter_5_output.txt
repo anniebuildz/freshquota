@@ -1,0 +1,63 @@
+
+=== Evaluation Results ===
+
+Case 1: Single peak 09-17, gap 18-08
+  Brute-force: anchor=04:00, simple=85, chain=130
+  Algorithm:   anchor=04:00, simple=85, chain=130
+  Optimality: simple=100%, chain=100% [GOOD]
+  Classic workday. Gap 18:00-08:00. Peak at 11-12. Optimal trigger should place a reset around 11-13.
+
+Case 2: Real user — heavy 13-02, sporadic 08-12
+  Brute-force: anchor=06:00, simple=1011, chain=1351
+  Algorithm:   anchor=07:00, simple=991, chain=1313
+  Optimality: simple=98%, chain=97% [GOOD]
+  Densest at 22:00. Gap ~03:00-08:00 (only 5h). Sporadic morning use complicates gap detection.
+
+Case 3: Two peaks 09-12 + 20-23
+  Brute-force: anchor=05:00, simple=101, chain=112
+  Algorithm:   anchor=04:00, simple=98, chain=122
+  Optimality: simple=97%, chain=109% [GOOD]
+  Two distinct peaks with gap 13-19. Should optimize for the larger peak (evening).
+
+Case 4: Near-uniform usage
+  Brute-force: anchor=none, simple=0, chain=0
+  Algorithm:   anchor=none, simple=0, chain=0
+  Optimality: simple=100%, chain=100% [GOOD]
+  No clear gap. Algorithm should either find the small dip at 04-07 or report no viable anchor.
+
+Case 5: Midnight-wrapping peak 22-04
+  Brute-force: anchor=11:00, simple=80, chain=118
+  Algorithm:   anchor=16:00, simple=80, chain=119
+  Optimality: simple=100%, chain=101% [GOOD]
+  Peak wraps midnight. Gap 05-20. Should handle circular distribution correctly.
+
+Case 6: Case 2 perturbed (+1 event at h8)
+  Brute-force: anchor=06:00, simple=1011, chain=1352
+  Algorithm:   anchor=07:00, simple=991, chain=1313
+  Optimality: simple=98%, chain=97% [GOOD]
+  Adversarial: h8 goes from 9 to 10. Should NOT cause total failure. Gap should still be found.
+
+Case 7: Barely 5h gap with non-zero edges
+  Brute-force: anchor=04:00, simple=75, chain=111
+  Algorithm:   anchor=04:00, simple=75, chain=111
+  Optimality: simple=100%, chain=100% [GOOD]
+  Gap has non-zero values at edges (h8=3, h13=2). Should still detect gap and avoid bleed.
+
+Case 8: All usage in one hour
+  Brute-force: anchor=00:00, simple=100, chain=0
+  Algorithm:   anchor=02:00, simple=100, chain=100
+  Optimality: simple=100%, chain=0% [POOR]
+  Extreme concentration. 23h gap. Trigger should place reset right at h12.
+
+Case 9: Tight 5h gap with moderate lead-in
+  Brute-force: anchor=06:00, simple=290, chain=469
+  Algorithm:   anchor=07:00, simple=258, chain=425
+  Optimality: simple=89%, chain=91% [GOOD]
+  Adversarial: h2=12 could cause bleed into gap. Should NOT return null.
+
+Case 10: Two gaps, one is a trap
+  Brute-force: anchor=06:00, simple=175, chain=243
+  Algorithm:   anchor=07:00, simple=146, chain=228
+  Optimality: simple=83%, chain=94% [GOOD]
+  Adversarial: bimodal with messy second gap. First gap (h3-h7) should work.
+

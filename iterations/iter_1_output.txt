@@ -1,0 +1,33 @@
+
+=== Evaluation Results ===
+
+Case 1: Single peak 09-17, gap 18-08
+  Brute-force optimal: anchor=04:00, score=85
+  Algorithm output:    anchor=04:00, score=85
+  Optimality: 100% [GOOD]
+  Classic workday. Gap 18:00-08:00. Peak at 11-12. Optimal trigger should place a reset around 11-13.
+
+Case 2: Real user — heavy 13-02, sporadic 08-12
+  Brute-force optimal: anchor=04:00, score=1020
+  Algorithm output:    anchor=04:00, score=1020
+  Optimality: 100% [GOOD]
+  Densest at 22:00. Gap ~03:00-08:00 (only 5h). Sporadic morning use complicates gap detection.
+
+Case 3: Two peaks 09-12 + 20-23
+  Brute-force optimal: anchor=00:00, score=101
+  Algorithm output:    anchor=00:00, score=101
+  Optimality: 100% [GOOD]
+  Two distinct peaks with gap 13-19. Should optimize for the larger peak (evening).
+
+Case 4: Near-uniform usage
+  Brute-force optimal: anchor=none, score=0
+  Algorithm output:    anchor=none, score=0
+  Optimality: 100% [GOOD]
+  No clear gap. Algorithm should either find the small dip at 04-07 or report no viable anchor.
+
+Case 5: Midnight-wrapping peak 22-04
+  Brute-force optimal: anchor=06:00, score=80
+  Algorithm output:    anchor=06:00, score=80
+  Optimality: 100% [GOOD]
+  Peak wraps midnight. Gap 05-20. Should handle circular distribution correctly.
+

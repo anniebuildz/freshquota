@@ -1,0 +1,63 @@
+
+=== Evaluation Results ===
+
+Case 1: Single peak 09-17, gap 18-08
+  Brute-force optimal: anchor=04:00, score=85
+  Algorithm output:    anchor=04:00, score=85
+  Optimality: 100% [GOOD]
+  Classic workday. Gap 18:00-08:00. Peak at 11-12. Optimal trigger should place a reset around 11-13.
+
+Case 2: Real user — heavy 13-02, sporadic 08-12
+  Brute-force optimal: anchor=06:00, score=1011
+  Algorithm output:    anchor=09:00, score=1008
+  Optimality: 100% [GOOD]
+  Densest at 22:00. Gap ~03:00-08:00 (only 5h). Sporadic morning use complicates gap detection.
+
+Case 3: Two peaks 09-12 + 20-23
+  Brute-force optimal: anchor=05:00, score=101
+  Algorithm output:    anchor=04:00, score=98
+  Optimality: 97% [GOOD]
+  Two distinct peaks with gap 13-19. Should optimize for the larger peak (evening).
+
+Case 4: Near-uniform usage
+  Brute-force optimal: anchor=none, score=0
+  Algorithm output:    anchor=05:00, score=98
+  Optimality: 0% [POOR]
+  No clear gap. Algorithm should either find the small dip at 04-07 or report no viable anchor.
+
+Case 5: Midnight-wrapping peak 22-04
+  Brute-force optimal: anchor=11:00, score=80
+  Algorithm output:    anchor=16:00, score=80
+  Optimality: 100% [GOOD]
+  Peak wraps midnight. Gap 05-20. Should handle circular distribution correctly.
+
+Case 6: Case 2 perturbed (+1 event at h8)
+  Brute-force optimal: anchor=06:00, score=1011
+  Algorithm output:    anchor=09:00, score=1008
+  Optimality: 100% [GOOD]
+  Adversarial: h8 goes from 9 to 10. Should NOT cause total failure. Gap should still be found.
+
+Case 7: Barely 5h gap with non-zero edges
+  Brute-force optimal: anchor=04:00, score=75
+  Algorithm output:    anchor=03:00, score=70
+  Optimality: 93% [GOOD]
+  Gap has non-zero values at edges (h8=3, h13=2). Should still detect gap and avoid bleed.
+
+Case 8: All usage in one hour
+  Brute-force optimal: anchor=00:00, score=100
+  Algorithm output:    anchor=07:00, score=100
+  Optimality: 100% [GOOD]
+  Extreme concentration. 23h gap. Trigger should place reset right at h12.
+
+Case 9: Tight 5h gap with moderate lead-in
+  Brute-force optimal: anchor=06:00, score=290
+  Algorithm output:    anchor=04:00, score=347
+  Optimality: 120% [GOOD]
+  Adversarial: h2=12 could cause bleed into gap. Should NOT return null.
+
+Case 10: Two gaps, one is a trap
+  Brute-force optimal: anchor=06:00, score=175
+  Algorithm output:    anchor=05:00, score=196
+  Optimality: 112% [GOOD]
+  Adversarial: bimodal with messy second gap. First gap (h3-h7) should work.
+

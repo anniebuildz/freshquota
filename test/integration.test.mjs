@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
   parseHistory, filterRecent, buildDistribution,
-  findPeakPeriod, computeAnchor, formatAnchor,
+  findOptimalAnchor, formatAnchor,
 } from '../src/analyzer.mjs';
 import { isWindowActive } from '../src/trigger.mjs';
 import { readState, writeState } from '../src/state.mjs';
@@ -42,19 +42,15 @@ describe('end-to-end: analyze → schedule → trigger check', () => {
     const parsed = parseHistory(historyPath);
     const recent = filterRecent(parsed, 14);
     const dist = buildDistribution(recent);
-    const peak = findPeakPeriod(dist);
+    const result = findOptimalAnchor(dist);
 
-    assert.ok(peak);
-    assert.ok(peak.start >= 9 && peak.start <= 10);
-    assert.ok(peak.end >= 14 && peak.end <= 15);
+    assert.ok(result);
+    assert.ok(result.anchor);
 
-    // 3. Compute anchor
-    const anchorDecimal = computeAnchor(peak.midpoint);
-    const anchor = formatAnchor(anchorDecimal);
-
-    // Peak midpoint should be ~11-12, so anchor should be ~6-7
+    // Anchor should be in the gap (16:00-08:00 range)
+    const anchor = result.anchor;
     const anchorHour = parseInt(anchor.split(':')[0]);
-    assert.ok(anchorHour >= 5 && anchorHour <= 8, `anchor ${anchor} out of expected range`);
+    assert.ok(anchorHour >= 16 || anchorHour <= 8, `anchor ${anchor} outside expected gap`);
 
     // 4. Save state
     const statePath = join(tempDir, 'state.json');

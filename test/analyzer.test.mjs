@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { parseHistory, filterRecent, buildDistribution, findPeakPeriod, computeAnchor, isDistributionFlat, formatAnchor } from '../src/analyzer.mjs';
+import { parseHistory, filterRecent, buildDistribution, findOptimalAnchor, computeAnchor, isDistributionFlat, formatAnchor } from '../src/analyzer.mjs';
 
 describe('parseHistory', () => {
   let tempDir;
@@ -93,30 +93,32 @@ describe('buildDistribution', () => {
   });
 });
 
-describe('findPeakPeriod', () => {
-  it('finds single peak in clear distribution', () => {
-    //                 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-    const dist =      [0, 0, 0, 0, 0, 0, 0, 2, 5, 12,18,15,14,10, 8, 6, 3, 1, 0, 0, 0, 0, 0, 0];
-    const peak = findPeakPeriod(dist);
-    assert.ok(peak);
-    assert.ok(peak.start >= 7);
-    assert.ok(peak.end <= 17);
-    assert.ok(peak.midpoint >= 10 && peak.midpoint <= 13);
+describe('findOptimalAnchor', () => {
+  it('finds anchor for single peak distribution', () => {
+    const dist = [0, 0, 0, 0, 0, 0, 0, 2, 5, 12,18,15,14,10, 8, 6, 3, 1, 0, 0, 0, 0, 0, 0];
+    const result = findOptimalAnchor(dist);
+    assert.ok(result);
+    assert.ok(result.anchor); // should return a valid HH:MM string
+    const anchorH = parseInt(result.anchor.split(':')[0]);
+    // Anchor should be in the gap (18:00-08:00)
+    assert.ok(anchorH >= 18 || anchorH <= 7, `anchor ${result.anchor} outside expected gap`);
   });
 
-  it('finds the larger peak when two exist', () => {
-    //                 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-    const dist =      [0, 0, 0, 0, 0, 0, 0, 0, 10,15,12, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 4, 0, 0];
-    const peak = findPeakPeriod(dist);
-    assert.ok(peak);
-    // Morning peak (10+15+12=37) should win over evening (3+5+4=12)
-    assert.ok(peak.start >= 8 && peak.start <= 9);
-    assert.ok(peak.end >= 10 && peak.end <= 10);
+  it('finds anchor for two-peak distribution', () => {
+    const dist = [0, 0, 0, 0, 0, 0, 0, 0, 10,15,12, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 4, 0, 0];
+    const result = findOptimalAnchor(dist);
+    assert.ok(result);
+    assert.ok(result.anchor);
   });
 
   it('returns null for all-zero distribution', () => {
     const dist = new Array(24).fill(0);
-    assert.equal(findPeakPeriod(dist), null);
+    assert.equal(findOptimalAnchor(dist), null);
+  });
+
+  it('returns null for flat distribution', () => {
+    const dist = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+    assert.equal(findOptimalAnchor(dist), null);
   });
 });
 
