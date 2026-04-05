@@ -1,10 +1,10 @@
 {
-  "name": "timeslot",
+  "name": "freshquota",
   "version": "0.1.0",
-  "description": "Optimize Claude Code 5-hour rolling window quota timing",
+  "description": "Fresh your quota — optimize Claude Code 5-hour rolling window timing",
   "type": "module",
   "bin": {
-    "timeslot": "./bin/timeslot.mjs"
+    "freshquota": "./bin/freshquota.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs"

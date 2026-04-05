@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { homedir } from 'node:os';
 
-const PLIST_LABEL = 'com.timeslot.trigger';
+const PLIST_LABEL = 'com.freshquota.trigger';
 
 export function plistPath() {
   return join(homedir(), 'Library', 'LaunchAgents', `${PLIST_LABEL}.plist`);

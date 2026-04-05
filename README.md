@@ -1,4 +1,4 @@
-# timeslot
+# Fresh Your Quota
 
 Optimize your Claude Code 5-hour rolling window quota by automatically triggering the window at the best time — even while your Mac is asleep.
 
@@ -6,7 +6,7 @@ Optimize your Claude Code 5-hour rolling window quota by automatically triggerin
 
 Claude Code subscribers have a usage quota that resets every 5 hours from first use. If you start using Claude at 9 AM, your quota resets at 2 PM. But if you could trigger that window at 7 AM (before you wake up), the reset would happen at noon — right in the middle of your productive hours.
 
-**timeslot** analyzes your usage patterns, finds the optimal trigger time, and wakes your Mac to activate the window automatically.
+**freshquota** analyzes your usage patterns, finds the optimal trigger time, and wakes your Mac to activate the window automatically.
 
 ## Requirements
 
@@ -18,7 +18,7 @@ Claude Code subscribers have a usage quota that resets every 5 hours from first 
 ## Install
 
 ```bash
-npm install -g timeslot
+npm install -g freshquota
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ npm install -g timeslot
 ### 1. Analyze your usage patterns
 
 ```bash
-timeslot analyze
+freshquota analyze
 ```
 
 Shows your hourly usage distribution and recommends an anchor time. Confirm to save.
@@ -34,13 +34,13 @@ Shows your hourly usage distribution and recommends an anchor time. Confirm to s
 To set manually:
 
 ```bash
-timeslot analyze --anchor 07:30
+freshquota analyze --anchor 07:30
 ```
 
 ### 2. Activate scheduling
 
 ```bash
-timeslot install
+freshquota install
 ```
 
 Registers the launchd job and schedules the first pmset wake. Requires sudo for pmset.
@@ -48,19 +48,19 @@ Registers the launchd job and schedules the first pmset wake. Requires sudo for 
 ### 3. Check status
 
 ```bash
-timeslot status
+freshquota status
 ```
 
 ### 4. Manual trigger
 
 ```bash
-timeslot trigger
+freshquota trigger
 ```
 
 ### 5. Health check
 
 ```bash
-timeslot doctor
+freshquota doctor
 ```
 
 Verifies the scheduling chain is intact and repairs if needed.
@@ -68,13 +68,13 @@ Verifies the scheduling chain is intact and repairs if needed.
 ### 6. Uninstall
 
 ```bash
-timeslot uninstall
+freshquota uninstall
 ```
 
 ## How scheduling works
 
 1. `pmset schedule wake` wakes your Mac at the anchor time (works with lid closed)
-2. `launchd` detects the wake and runs `timeslot run`
+2. `launchd` detects the wake and runs `freshquota run`
 3. The tool checks if the window is already active — if so, skips
 4. Otherwise, sends a minimal Claude CLI request to activate the window
 5. Schedules tomorrow's pmset wake

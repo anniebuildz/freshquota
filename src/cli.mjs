@@ -18,7 +18,7 @@ import { notifyTriggerResult } from './notifier.mjs';
 const statePath = defaultStatePath();
 
 function printUsage() {
-  console.log(`Usage: timeslot <command>
+  console.log(`Usage: freshquota <command>
 
 Commands:
   analyze     Analyze usage patterns and set anchor time
@@ -54,7 +54,7 @@ async function cmdAnalyze() {
 
   if (recent.length < 20) {
     console.error(`Only ${recent.length} entries in last 14 days. Need at least 20 for reliable analysis.`);
-    console.error('Use Claude Code more, or set anchor manually: timeslot analyze --anchor HH:MM');
+    console.error('Use Claude Code more, or set anchor manually: freshquota analyze --anchor HH:MM');
     process.exit(1);
   }
 
@@ -65,14 +65,14 @@ async function cmdAnalyze() {
 
   if (isDistributionFlat(dist)) {
     console.log('\nNo clear usage peak detected. Set anchor manually:');
-    console.log('  timeslot analyze --anchor HH:MM');
+    console.log('  freshquota analyze --anchor HH:MM');
     process.exit(1);
   }
 
   const peak = findPeakPeriod(dist);
   if (!peak) {
     console.log('\nCould not detect peak period. Set anchor manually:');
-    console.log('  timeslot analyze --anchor HH:MM');
+    console.log('  freshquota analyze --anchor HH:MM');
     process.exit(1);
   }
 
@@ -92,13 +92,13 @@ async function cmdAnalyze() {
   state.analyzedAt = new Date().toISOString();
   writeState(statePath, state);
   console.log(`Anchor saved: ${anchor}`);
-  console.log('Run "timeslot install" to activate scheduling.');
+  console.log('Run "freshquota install" to activate scheduling.');
 }
 
 async function cmdInstall() {
   const state = readState(statePath);
   if (!state.anchor) {
-    console.error('No anchor set. Run "timeslot analyze" first.');
+    console.error('No anchor set. Run "freshquota analyze" first.');
     process.exit(1);
   }
 
@@ -113,7 +113,7 @@ async function cmdInstall() {
 
   const wake = schedulePmsetWake(state.anchor);
   console.log(`pmset wake scheduled: ${wake.toLocaleString()}`);
-  console.log('\nTimeslot is active. Run "timeslot status" to verify.');
+  console.log('\nTimeslot is active. Run "freshquota status" to verify.');
 }
 
 async function cmdUninstall() {
@@ -132,7 +132,7 @@ async function cmdStatus() {
   const state = readState(statePath);
 
   if (!state.anchor) {
-    console.log('Not configured. Run "timeslot analyze" to get started.');
+    console.log('Not configured. Run "freshquota analyze" to get started.');
     return;
   }
 
@@ -254,7 +254,7 @@ async function cmdDoctor() {
   let healthy = true;
 
   if (!state.anchor) {
-    console.log('[FAIL] No anchor configured. Run "timeslot analyze".');
+    console.log('[FAIL] No anchor configured. Run "freshquota analyze".');
     process.exit(1);
   }
   console.log(`[OK] Anchor: ${state.anchor}`);
@@ -263,7 +263,7 @@ async function cmdDoctor() {
   if (existsSync(plist)) {
     console.log('[OK] launchd plist exists');
   } else {
-    console.log('[FAIL] launchd plist missing. Run "timeslot install" to fix.');
+    console.log('[FAIL] launchd plist missing. Run "freshquota install" to fix.');
     healthy = false;
   }
 
@@ -272,7 +272,7 @@ async function cmdDoctor() {
     if (output.includes('wake')) {
       console.log('[OK] pmset wake schedule found');
     } else {
-      console.log('[WARN] No pmset wake schedule. Run "timeslot install" to fix.');
+      console.log('[WARN] No pmset wake schedule. Run "freshquota install" to fix.');
       healthy = false;
     }
   } catch {
@@ -284,7 +284,7 @@ async function cmdDoctor() {
     console.log(`[WARN] Last trigger had error: ${state.lastError}`);
   }
 
-  console.log(healthy ? '\nAll checks passed.' : '\nIssues found. Run "timeslot install" to repair.');
+  console.log(healthy ? '\nAll checks passed.' : '\nIssues found. Run "freshquota install" to repair.');
 }
 
 export async function run(args) {
@@ -303,7 +303,7 @@ export async function run(args) {
     state.analyzedAt = new Date().toISOString();
     writeState(statePath, state);
     console.log(`Anchor set manually: ${anchor}`);
-    console.log('Run "timeslot install" to activate scheduling.');
+    console.log('Run "freshquota install" to activate scheduling.');
     return;
   }
 

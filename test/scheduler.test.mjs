@@ -4,17 +4,17 @@ import { buildPlist, computeNextWake } from '../src/scheduler.mjs';
 
 describe('buildPlist', () => {
   it('generates valid plist XML with correct anchor time', () => {
-    const plist = buildPlist('08:30', '/usr/local/bin/timeslot', '/tmp/logs');
+    const plist = buildPlist('08:30', '/usr/local/bin/freshquota', '/tmp/logs');
     assert.ok(plist.includes('<integer>8</integer>'));   // Hour
     assert.ok(plist.includes('<integer>30</integer>'));   // Minute
-    assert.ok(plist.includes('com.timeslot.trigger'));
-    assert.ok(plist.includes('/usr/local/bin/timeslot'));
+    assert.ok(plist.includes('com.freshquota.trigger'));
+    assert.ok(plist.includes('/usr/local/bin/freshquota'));
     assert.ok(plist.includes('<true/>'));                 // RunAtLoad
     assert.ok(plist.includes('/tmp/logs'));
   });
 
   it('handles midnight anchor', () => {
-    const plist = buildPlist('00:00', '/usr/local/bin/timeslot', '/tmp/logs');
+    const plist = buildPlist('00:00', '/usr/local/bin/freshquota', '/tmp/logs');
     assert.ok(plist.includes('<integer>0</integer>'));
   });
 });

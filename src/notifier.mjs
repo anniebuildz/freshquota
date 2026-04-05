@@ -14,10 +14,10 @@ export function sendNotification(title, message) {
 
 export function notifyTriggerResult(result, resetAt) {
   if (result === 'triggered') {
-    sendNotification('Timeslot', `Claude Code window activated. Resets at ${resetAt}.`);
+    sendNotification('FreshQuota', `Claude Code window activated. Resets at ${resetAt}.`);
   } else if (result === 'skipped') {
-    sendNotification('Timeslot', 'Window already active, trigger skipped.');
+    sendNotification('FreshQuota', 'Window already active, trigger skipped.');
   } else if (result === 'error') {
-    sendNotification('Timeslot', 'Trigger failed. Run timeslot status for details.');
+    sendNotification('FreshQuota', 'Trigger failed. Run freshquota status for details.');
   }
 }

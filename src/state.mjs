@@ -14,7 +14,7 @@ const DEFAULT_STATE = {
 };
 
 export function defaultStatePath() {
-  return join(homedir(), '.timeslot', 'state.json');
+  return join(homedir(), '.freshquota', 'state.json');
 }
 
 export function readState(filePath) {
