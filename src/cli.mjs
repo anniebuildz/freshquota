@@ -5,7 +5,7 @@ import { execSync } from 'node:child_process';
 import { readState, writeState, defaultStatePath } from './state.mjs';
 import {
   parseHistory, filterRecent, buildDistribution,
-  findPeakPeriod, computeAnchor, isDistributionFlat,
+  findOptimalAnchor, isDistributionFlat,
   formatAnchor, defaultHistoryPath,
 } from './analyzer.mjs';
 import { isWindowActive, alreadyTriggeredToday, waitForNetwork, executeClaude } from './trigger.mjs';
@@ -63,28 +63,20 @@ async function cmdAnalyze() {
   console.log('\nUsage distribution (last 14 days):\n');
   printDistribution(dist);
 
-  if (isDistributionFlat(dist)) {
-    console.log('\nNo clear usage peak detected. Set anchor manually:');
+  const result = findOptimalAnchor(dist);
+  if (!result) {
+    console.log('\nNo clear usage pattern detected. Set anchor manually:');
     console.log('  freshquota analyze --anchor HH:MM');
     process.exit(1);
   }
 
-  const peak = findPeakPeriod(dist);
-  if (!peak) {
-    console.log('\nCould not detect peak period. Set anchor manually:');
-    console.log('  freshquota analyze --anchor HH:MM');
-    process.exit(1);
-  }
+  const anchor = result.anchor;
 
-  const anchorDecimal = computeAnchor(peak.midpoint);
-  const anchor = formatAnchor(anchorDecimal);
-  const resetTime = formatAnchor(peak.midpoint);
-
-  console.log(`\nPeak usage: ${String(peak.start).padStart(2, '0')}:00 - ${String(peak.end + 1).padStart(2, '0')}:00`);
-  console.log(`Optimal reset point: ${resetTime}`);
+  console.log(`\nGap detected: ${String(result.gaps[0].start).padStart(2, '0')}:00 - ${String(result.gaps[0].end).padStart(2, '0')}:00 (${result.gaps[0].length}h)`);
   console.log(`Recommended anchor: ${anchor}`);
+  console.log(`Window resets at: ${result.resets.join(', ')}`);
   console.log(`\nThis means the tool will trigger Claude Code at ${anchor} daily,`);
-  console.log(`so the 5-hour window resets around ${resetTime} during your peak.\n`);
+  console.log(`so your quota refreshes at ${result.resets.slice(0, 3).join(', ')} during your peak.\n`);
 
   const state = readState(statePath);
   state.anchor = anchor;
