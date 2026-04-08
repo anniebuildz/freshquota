@@ -54,7 +54,7 @@ export function executeClaude() {
       '--tools', '',
       '--no-chrome',
       'Reply with exactly OK.',
-    ], { stdio: 'pipe', timeout: 180000 });
+    ], { stdio: ['ignore', 'pipe', 'pipe'], timeout: 180000 });
 
     let stdout = '';
     let stderr = '';

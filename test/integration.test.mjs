@@ -59,7 +59,8 @@ describe('end-to-end: analyze → schedule → trigger check', () => {
     assert.equal(state.anchor, anchor);
 
     // 5. Generate plist
-    const plist = buildPlist(anchor, '/usr/local/bin/timeslot', join(tempDir, 'logs'));
+    const plist = buildPlist(anchor, '/usr/local/bin/timeslot', join(tempDir, 'logs'),
+      '/usr/local/bin/node', '/usr/local/bin/claude');
     assert.ok(plist.includes(String(anchorHour)));
 
     // 6. Window check

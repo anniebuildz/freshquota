@@ -9,8 +9,14 @@ export function plistPath() {
   return join(homedir(), 'Library', 'LaunchAgents', `${PLIST_LABEL}.plist`);
 }
 
-export function buildPlist(anchor, scriptPath, logDir) {
+export function buildPlist(anchor, scriptPath, logDir, nodePath, claudePath) {
   const [hours, minutes] = anchor.split(':').map(Number);
+
+  const pathDirs = [dirname(nodePath)];
+  if (claudePath) pathDirs.push(dirname(claudePath));
+  pathDirs.push('/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin');
+  const pathValue = [...new Set(pathDirs)].join(':');
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -19,9 +25,15 @@ export function buildPlist(anchor, scriptPath, logDir) {
   <string>${PLIST_LABEL}</string>
   <key>ProgramArguments</key>
   <array>
+    <string>${nodePath}</string>
     <string>${scriptPath}</string>
     <string>run</string>
   </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>${pathValue}</string>
+  </dict>
   <key>StartCalendarInterval</key>
   <dict>
     <key>Hour</key>
@@ -60,12 +72,16 @@ function formatPmsetDate(date) {
   return `${mm}/${dd}/${yyyy} ${HH}:${MM}:${SS}`;
 }
 
+function realUid() {
+  return process.env.SUDO_UID || process.getuid();
+}
+
 export function registerLaunchd(plistContent) {
   const dest = plistPath();
   mkdirSync(dirname(dest), { recursive: true });
   writeFileSync(dest, plistContent);
 
-  const uid = process.getuid();
+  const uid = realUid();
   try {
     execSync(`launchctl bootout gui/${uid} ${dest}`, { stdio: 'ignore' });
   } catch {
@@ -76,7 +92,7 @@ export function registerLaunchd(plistContent) {
 
 export function unregisterLaunchd() {
   const dest = plistPath();
-  const uid = process.getuid();
+  const uid = realUid();
   try {
     execSync(`launchctl bootout gui/${uid} ${dest}`, { stdio: 'ignore' });
   } catch { /* not loaded */ }

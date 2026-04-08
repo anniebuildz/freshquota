@@ -99,7 +99,13 @@ async function cmdInstall() {
   const logDir = join(stateDir, 'logs');
   mkdirSync(logDir, { recursive: true });
 
-  const plist = buildPlist(state.anchor, scriptPath, logDir);
+  const nodePath = process.execPath;
+  let claudePath = null;
+  try {
+    claudePath = execSync('which claude', { encoding: 'utf-8' }).trim();
+  } catch { /* claude not on PATH — will rely on node dir only */ }
+
+  const plist = buildPlist(state.anchor, scriptPath, logDir, nodePath, claudePath);
   registerLaunchd(plist);
   console.log('launchd registered.');
 
