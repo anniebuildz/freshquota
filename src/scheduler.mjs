@@ -11,12 +11,18 @@ export function plistPath() {
 
 export function buildPlist(anchor, scriptPath, logDir) {
   const [hours, minutes] = anchor.split(':').map(Number);
+  const scriptBinDir = dirname(scriptPath);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
   <key>Label</key>
   <string>${PLIST_LABEL}</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>${scriptBinDir}:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
   <key>ProgramArguments</key>
   <array>
     <string>${scriptPath}</string>
