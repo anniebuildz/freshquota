@@ -99,7 +99,13 @@ async function cmdInstall() {
   const logDir = join(stateDir, 'logs');
   mkdirSync(logDir, { recursive: true });
 
-  const plist = buildPlist(state.anchor, scriptPath, logDir);
+  const nodePath = process.execPath;
+  let claudePath = null;
+  try {
+    claudePath = execSync('which claude', { encoding: 'utf-8' }).trim();
+  } catch { /* claude not on PATH — will rely on node dir only */ }
+
+  const plist = buildPlist(state.anchor, scriptPath, logDir, nodePath, claudePath);
   registerLaunchd(plist);
   console.log('launchd registered.');
 
@@ -128,13 +134,15 @@ async function cmdStatus() {
     return;
   }
 
+  const fmt = iso => iso ? new Date(iso).toLocaleString() : null;
+
   console.log(`Anchor: ${state.anchor}`);
-  console.log(`Analyzed: ${state.analyzedAt || 'never'}`);
-  console.log(`Last trigger: ${state.lastTrigger || 'never'}`);
+  console.log(`Analyzed: ${fmt(state.analyzedAt) || 'never'}`);
+  console.log(`Last trigger: ${fmt(state.lastTrigger) || 'never'}`);
   console.log(`Last result: ${state.lastResult || 'n/a'}`);
   if (state.lastSkipReason) console.log(`Skip reason: ${state.lastSkipReason}`);
   if (state.lastError) console.log(`Last error: ${state.lastError}`);
-  if (state.windowResetAt) console.log(`Window resets at: ${state.windowResetAt}`);
+  if (state.windowResetAt) console.log(`Window resets at: ${fmt(state.windowResetAt)}`);
 
   const nextWake = computeNextWake(state.anchor);
   console.log(`Next wake: ${nextWake.toLocaleString()}`);
